@@ -6,7 +6,7 @@
 
 partition_prevalence <- function(overall_prevalence1,
                                  overall_prevalence2,
-                                 Standard_error_prevalence,
+                                 sigma_prevalence,
                                  cluster_number,
                                  cluster_size
   #function that divides/partitions  the overall prevalence and assigns to clusters
@@ -14,11 +14,11 @@ partition_prevalence <- function(overall_prevalence1,
                                  
 ){
   
-  CoV_overall =  Standard_error_prevalence/overall_prevalence1
+  CoV_overall =  sigma_prevalence/overall_prevalence1
   
   cluster_prevalences = rnorm(length(cluster_number), 
                               mean = overall_prevalence1, 
-                              sd = Standard_error_prevalence)
+                              sd = sigma_prevalence)
   
   cluster_CoV = sd(cluster_prevalences) / mean(cluster_prevalences)
   
@@ -42,7 +42,7 @@ partition_prevalence <- function(overall_prevalence1,
 
 prevalence = partition_prevalence(overall_prevalence1 = 0.2,
                                   overall_prevalence2 = 0.3 ,
-                                  Standard_error_prevalence = 0.01,
+                                  sigma_prevalence = 0.01,
                                   cluster_size = c(1028, 555, 390, 1309, 698, 907,
                                                    432, 897, 677, 501, 867, 867, 
                                                    1002, 1094, 668, 500, 835, 
@@ -58,7 +58,7 @@ Survey_pps <- function(cluster_number,
                        ind_per_cluster, 
                        overall_prevalence1,
                        overall_prevalence2,
-                       Standard_error_prevalence
+                       sigma_prevalence
                       ){
   
   #Steps in appling Probability propotional to size(pps) and ways to ensure equal sampling weights 
@@ -72,14 +72,19 @@ Survey_pps <- function(cluster_number,
   
   survey_data = cbind(survey_data, partition_prevalence(overall_prevalence1 = overall_prevalence1,
                                           overall_prevalence2 = overall_prevalence2,
-                                          Standard_error_prevalence = Standard_error_prevalence,
+                                          sigma_prevalence = sigma_prevalence,
                                           cluster_number = cluster_number,
                                           cluster_size = cluster_size)[[2]][, -1])
   
   
   sampling_interval = survey_data$cumulative_sum[length(cluster_number)] / num_cluster_sample
   
-  random_number = sample(1 : sampling_interval, 1)
+  threshold = survey_data$cumulative_sum[max(which(survey_data$cumulative_sum < sampling_interval))]
+  
+  #threshold added to avoid getting NAs this ensures the first random number is not greater than
+  # the sampling interval
+  
+  random_number = sample(1 : threshold, 1)
   
   cluster_series = cumsum(c(random_number, rep(sampling_interval, num_cluster_sample-1)))
  
@@ -118,8 +123,39 @@ survey_data <- Survey_pps(cluster_number = 1:30,
             ind_per_cluster = 300, 
             overall_prevalence1 = 0.2,
             overall_prevalence2 = 0.3,
-            Standard_error_prevalence = 0.01)
+            sigma_prevalence = 0.01)
 
+
+
+
+
+N_iterations = 10000
+
+Prevalence_t1 = as.vector(rep(NA, N_iterations))
+Prevalence_t2 = as.vector(rep(NA, N_iterations))
+
+for (ii in 1:N_iterations){
+  
+  survey_data <- Survey_pps(cluster_number = 1:30,
+                            cluster_size = c(1028, 555, 390, 1309, 698, 907,
+                                             432, 897, 677, 501, 867, 867, 
+                                             1002, 1094, 668, 500, 835, 
+                                             396, 630, 483, 319, 569, 987, 598, 
+                                             375, 387, 465, 751, 365, 448), 
+                            num_cluster_sample = 10,
+                            ind_per_cluster = 300, 
+                            overall_prevalence1 = 0.2,
+                            overall_prevalence2 = 0.3,
+                            sigma_prevalence = 0.01)
+  
+  Prevalence_t1[ii]  = mean(survey_data$cluster_prevalence_t1)
+  Prevalence_t2[ii]  = mean(survey_data$cluster_prevalence_t2)
+}
+
+
+which(is.na(Prevalence_t1))
+
+mean(Prevalence_t1)
 
 
 
