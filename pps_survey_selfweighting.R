@@ -45,11 +45,11 @@ partition_prevalence <- function(overall_prevalence1,
   
   cluster_prevalences_final2 = (cluster_prevalences_final1)*(overall_prevalence2 / overall_prevalence1)
   
-  prevcheck =c(sum(cluster_size * cluster_prevalences_final1) / sum(cluster_size), sum(cluster_size * cluster_prevalences_final2) / sum(cluster_size))
-  
-  return(list(prevcheck, data.frame(cluster_number = cluster_number, 
-                                    cluster_prevalence_t1 = cluster_prevalences_final1, 
-                                    cluster_prevalence_t2 = cluster_prevalences_final2)))
+  prevcheck = c(sum(cluster_size * cluster_prevalences_final1) / sum(cluster_size), sum(cluster_size * cluster_prevalences_final2) / sum(cluster_size))
+   
+  return(list(prevcheck, data.frame( cluster_number = cluster_number, 
+                                     cluster_prevalence_t1 = cluster_prevalences_final1, 
+                                     cluster_prevalence_t2 = cluster_prevalences_final2 )))
   
 }
 
@@ -123,12 +123,6 @@ Survey_pps <- function(cluster_number,
 
 
 
-
-
-
-
-
-
 Bootstrap_prevalence <- function(N_iterations,
                                  cluster_number,
                                  cluster_size,
@@ -156,9 +150,9 @@ for (ii in 1:N_iterations){
   Prevalence_t1[ii]  = mean(survey_data$cluster_prevalence_t1)
   Prevalence_t2[ii]  = mean(survey_data$cluster_prevalence_t2)
 }
-return(data.frame(N_iterations = N_iterations,
-                  Prevalence_t1 = Prevalence_t1,
-                  Prevalence_t2 = Prevalence_t2
+return(data.frame( N_iterations = N_iterations,
+                   Prevalence_t1 = Prevalence_t1,
+                   Prevalence_t2 = Prevalence_t2
                   ))
 }
 
