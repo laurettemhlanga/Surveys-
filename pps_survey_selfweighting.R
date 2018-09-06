@@ -9,8 +9,8 @@ partition_prevalence <- function(overall_prevalence1,
                                  sigma_prevalence,
                                  cluster_number,
                                  cluster_size
-                                 #function that divides/partitions  the overall prevalence and assigns to clusters
-                                 #into given clusters                                  
+ #function that divides/partitions  the overall prevalence and assigns to clusters
+ #into given clusters                                                                  
                                  
 ){
   
@@ -19,6 +19,19 @@ partition_prevalence <- function(overall_prevalence1,
   cluster_prevalences = rnorm(length(cluster_number), 
                               mean = overall_prevalence1, 
                               sd = sigma_prevalence)
+  # to avoid negative prevalences we check is there are any negatives in the prevalences vector and if they are we replace
+  #the negative values by the mean of the simulated cluster_prevalences
+  
+  if (any(cluster_prevalences < 0)){
+    
+    x = replace(cluster_prevalences, which(cluster_prevalences<0), mean(cluster_prevalences))
+    
+  }else{
+    
+    cluster_prevalences = cluster_prevalences 
+  }
+  
+  
   
   cluster_CoV = sd(cluster_prevalences) / mean(cluster_prevalences)
   
