@@ -1,3 +1,5 @@
+
+
 #written by laurette Mhlanga an adaptation on the sampling with pps 
 #psu to achieve equal weights in a 
 #for every individual 
@@ -53,15 +55,7 @@ partition_prevalence <- function(overall_prevalence1,
 
 
 
-prevalence = partition_prevalence(overall_prevalence1 = 0.2,
-                                  overall_prevalence2 = 0.3 ,
-                                  sigma_prevalence = 0.01,
-                                  cluster_size = c(1028, 555, 390, 1309, 698, 907,
-                                                   432, 897, 677, 501, 867, 867, 
-                                                   1002, 1094, 668, 500, 835, 
-                                                   396, 630, 483, 319, 569, 987, 598, 
-                                                   375, 387, 465, 751, 365, 448),
-                                  cluster_number = 1:30)[[2]]
+
 
 
 
@@ -126,49 +120,52 @@ Survey_pps <- function(cluster_number,
   return(survey_data)
 }
 
-survey_data <- Survey_pps(cluster_number = 1:30,
-                          cluster_size = c(1028, 555, 390, 1309, 698, 907,
-                                           432, 897, 677, 501, 867, 867, 
-                                           1002, 1094, 668, 500, 835, 
-                                           396, 630, 483, 319, 569, 987, 598, 
-                                           375, 387, 465, 751, 365, 448), 
-                          num_cluster_sample = 10,
-                          ind_per_cluster = 300, 
-                          overall_prevalence1 = 0.2,
-                          overall_prevalence2 = 0.3,
-                          sigma_prevalence = 0.01)
 
 
 
 
 
-N_iterations = 10000
 
+
+
+
+Bootstrap_prevalence <- function(N_iterations,
+                                 cluster_number,
+                                 cluster_size,
+                                 num_cluster_sample,
+                                 ind_per_cluster,
+                                 overall_prevalence1,
+                                 overall_prevalence2,
+                                 sigma_prevalence
+                                 ){
+#the function simulates the survey N_iterations times  to get a distribution of 
+# Prevalence_t1 and Prevalence_t2 
 Prevalence_t1 = as.vector(rep(NA, N_iterations))
 Prevalence_t2 = as.vector(rep(NA, N_iterations))
 
 for (ii in 1:N_iterations){
   
-  survey_data <- Survey_pps(cluster_number = 1:30,
-                            cluster_size = c(1028, 555, 390, 1309, 698, 907,
-                                             432, 897, 677, 501, 867, 867, 
-                                             1002, 1094, 668, 500, 835, 
-                                             396, 630, 483, 319, 569, 987, 598, 
-                                             375, 387, 465, 751, 365, 448), 
-                            num_cluster_sample = 10,
-                            ind_per_cluster = 300, 
-                            overall_prevalence1 = 0.2,
-                            overall_prevalence2 = 0.3,
-                            sigma_prevalence = 0.01)
+  survey_data <- Survey_pps(cluster_number = cluster_number,
+                            cluster_size = cluster_size, 
+                            num_cluster_sample = num_cluster_sample,
+                            ind_per_cluster = ind_per_cluster, 
+                            overall_prevalence1 = overall_prevalence1,
+                            overall_prevalence2 = overall_prevalence2,
+                            sigma_prevalence = sigma_prevalence)
   
   Prevalence_t1[ii]  = mean(survey_data$cluster_prevalence_t1)
   Prevalence_t2[ii]  = mean(survey_data$cluster_prevalence_t2)
 }
+return(data.frame(N_iterations = N_iterations,
+                  Prevalence_t1 = Prevalence_t1,
+                  Prevalence_t2 = Prevalence_t2
+                  ))
+}
 
 
-which(is.na(Prevalence_t1))
 
-mean(Prevalence_t1)
+
+
 
 
 
